@@ -71,6 +71,10 @@ OBJS=	./system_stm32f4xx.o \
         $(ST)/src/stm32f4xx_usart.o \
         $(ST)/src/stm32f4xx_adc.o \
         $(ST)/src/stm32f4xx_tim.o \
+        $(ST)/src/stm32f4xx_i2c.o \
+        $/ssd1306/ssd1306.o \
+        $/ssd1306/ssd1306_fonts.o \
+        $/ssd1306/ssd1306_tests.o \
         ./main.o \
         $(STARTUP) 
         
