@@ -58,15 +58,15 @@ void GPIO_Configuration(void)
     GPIO_PinAFConfig(GPIOC, GPIO_PinSource10, GPIO_AF_USART3);  // USART1_TX
     GPIO_PinAFConfig(GPIOC, GPIO_PinSource11, GPIO_AF_USART3);  // USART1_RX
 
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_8;
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_6;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init(GPIOB, &GPIO_InitStructure);
 
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_I2C1);  // I2C1 SDA
-    GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_I2C1);  // I2C1 SCL
+    GPIO_PinAFConfig(GPIOB, GPIO_PinSource6, GPIO_AF_I2C1);  // I2C1 SCL
 }
 
 
@@ -134,48 +134,40 @@ void I2C_Configuration(void)
 
     I2C_SoftwareResetCmd(I2C1, ENABLE);
     I2C_SoftwareResetCmd(I2C1, DISABLE);
+ 
+    I2C_DeInit(I2C1);
+    /* IOE_I2C configuration */
+    I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
+    I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
+    I2C_InitStructure.I2C_OwnAddress1 = 0x30;
+    I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
+    I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
+    I2C_InitStructure.I2C_ClockSpeed = 400000;
 
-    /* If the I2C peripheral is already enabled, don't reconfigure it */
-    if ((I2C1->CR1 & I2C_CR1_PE) == 0)
-    {   
-        /* IOE_I2C configuration */
-        I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
-        I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
-        I2C_InitStructure.I2C_OwnAddress1 = 0x00;
-        I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
-        I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-        I2C_InitStructure.I2C_ClockSpeed = 400000;
+    /* Initialize the I2C peripheral */
+    I2C_Init(I2C1, &I2C_InitStructure);
 
-        /* Initialize the I2C peripheral */
-        I2C_Init(I2C1, &I2C_InitStructure);
-
-        /* Enable the I2C peripheral */
-        I2C_Cmd(I2C1, ENABLE);
-    }
+    /* Enable the I2C peripheral */
+    I2C_Cmd(I2C1, ENABLE);
 }
 
 void i2c_write(uint8_t address, uint8_t registry, uint8_t data)
 {
+    while(I2C_GetFlagStatus(IOE_I2C, I2C_FLAG_BUSY));
+
     I2C_GenerateSTART(IOE_I2C, ENABLE);
-
-    while(!I2C_GetFlagStatus(IOE_I2C, I2C_FLAG_SB));
-
-    I2C_AcknowledgeConfig(IOE_I2C, DISABLE);
+    while(!I2C_CheckEvent(IOE_I2C, I2C_EVENT_MASTER_MODE_SELECT));
 
     I2C_Send7bitAddress(IOE_I2C, address, I2C_Direction_Transmitter);
+    while(!I2C_CheckEvent(IOE_I2C, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
 
-    while (!I2C_GetFlagStatus(IOE_I2C, I2C_FLAG_ADDR));
+    I2C_SendData(I2C1, registry);
+    while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 
-    // while (!(I2C1->SR1 & I2C_SR1_ADDR));    // Wait for EV6
-    (void)I2C1->SR2;                        // Read SR2
-
-    // while (!(I2C1->SR1 & I2C_SR1_TXE));     // Wait for EV8_1
-    I2C1->DR = registry;                    // Write registry address
-
-    // while (!(I2C1->SR1 & I2C_SR1_BTF));     // Wait for BTF
-    I2C1->DR = data;
-
-    I2C1->CR1 |= I2C_CR1_STOP;              // Generate STOP condition
+    I2C_SendData(I2C1, data);
+    while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+    
+    I2C_GenerateSTOP(I2C1, ENABLE);//¹Ø±ÕI2C1×ÜÏß
 }
 
 void USART3_puts(char* s)
