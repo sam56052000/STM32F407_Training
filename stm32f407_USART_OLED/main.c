@@ -1,4 +1,5 @@
 #include "main.h"
+#include "./ssd1306/ssd1306.h"
 
 
 void Delay_1us(uint32_t nCnt_1us)
@@ -139,7 +140,7 @@ void I2C_Configuration(void)
     /* IOE_I2C configuration */
     I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
     I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
-    I2C_InitStructure.I2C_OwnAddress1 = 0x30;
+    I2C_InitStructure.I2C_OwnAddress1 = 0x00;
     I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
     I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
     I2C_InitStructure.I2C_ClockSpeed = 400000;
@@ -167,7 +168,7 @@ void i2c_write(uint8_t address, uint8_t registry, uint8_t data)
     I2C_SendData(I2C1, data);
     while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
     
-    I2C_GenerateSTOP(I2C1, ENABLE);//¹Ø±ÕI2C1×ÜÏß
+    I2C_GenerateSTOP(I2C1, ENABLE);
 }
 
 void USART3_puts(char* s)
@@ -224,6 +225,80 @@ uint8_t PushButton_Read(void){
 
 }
 
+extern uint8_t SSD1306_Buffer[];
+// uint8_t MYRINFO[4][8] = {   
+//                         {0xDF,0xDF,0xDD,0xDD,0xDD,0x1D,0xDD,0xDD},
+//                         {0xDD,0x1D,0xDD,0xDD,0xDD,0xDF,0xDF,0xFF},
+//                         {0x7F,0xBF,0xDF,0xEF,0xF3,0xFC,0xFF,0xFF},
+//                         {0xFF,0xC0,0xBF,0xBF,0xBF,0xBF,0x87,0xFF}
+//                     };
+
+// uint8_t MYRINFO[] = {   0x00, 0x00, 0x00, 0x00, 0x00,   //
+//                         0xFF, 0x60, 0x18, 0x60, 0xFF,   // M
+//                         0x00, 0x00, 0x00, 0x00, 0x00,   //
+//                         0x80, 0x60, 0x1F, 0x60, 0x80,   // Y
+//                         0x00, 0x00, 0x00, 0x00, 0x00,   //
+//                         0x91, 0x82, 0x94, 0x98, 0xFF,   // R
+//                         0x00, 0x00, 0x00, 0x00, 0x00,   //
+//                         0x82, 0x82, 0xFF, 0x82, 0x82,   // I
+//                         0x00, 0x00, 0x00, 0x00, 0x00,   //
+//                         0xFF, 0x06, 0x18, 0x60, 0xFF,   // N
+//                         0x00, 0x00, 0x00, 0x00, 0x00,   //
+//                         0x90, 0x88, 0x88, 0x88, 0xFF,   // F
+//                         0x00, 0x00, 0x00, 0x00, 0x00,   //
+//                         0xFF, 0x81, 0x81, 0x81, 0xFF,   // O
+//                         0x00, 0x00, 0x00, 0x00, 0x00,   //
+//                         0x00, 0x00, 0x00, 0x00, 0x00,   //
+//                     };     
+
+uint8_t MYRINFO[][16] = {
+    {0x00, 0x00, 0x1F, 0xF8, 0x1F, 0xF8, 0x1E, 0x00, 0x07, 0x80, 0x01, 0xF0, 0x00, 0x38, 0x01, 0xF0},
+    {0x07, 0x80, 0x1E, 0x00, 0x1F, 0xF8, 0x1F, 0xF8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+
+    {0x00, 0x00, 0x18, 0x00, 0x1C, 0x00, 0x07, 0x00, 0x03, 0xF8, 0x03, 0xF8, 0x07, 0x00, 0x1C, 0x00},
+    {0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
+};               
+
+void Update_MYRINFO(void)
+{
+    uint8_t i = 0;
+    
+    for(i = 0; i < 8; i++)
+    {
+        SSD1306_Buffer[i+8] = MYRINFO[2][i];
+    }
+
+    for(i = 0; i < 8; i++)
+    {
+        SSD1306_Buffer[i+16] = MYRINFO[2][i+8];
+    }
+
+    for(i = 0; i < 8; i++)
+    {
+        SSD1306_Buffer[i+128+8] = MYRINFO[3][i];
+    }
+
+    for(i = 0; i < 8; i++)
+    {
+        SSD1306_Buffer[i+128+16] = MYRINFO[3][i+8];
+    }
+
+    // for(i = 0; i < 8; i++)
+    // {
+    //     SSD1306_Buffer[8+i] = MYRINFO[1][i];
+    // }
+
+    // for(i = 0; i < 8; i++)
+    // {
+    //     SSD1306_Buffer[128+i] = MYRINFO[2][i];
+    // }
+
+    // for(i = 0; i < 8; i++)
+    // {
+    //     SSD1306_Buffer[128+8+i] = MYRINFO[3][i];
+    // }
+}
+
 /**************************************************************************************/
 int main(void)
 {
@@ -238,10 +313,12 @@ int main(void)
     USART3_puts("This is for STM32F407I Discovery verify USART1 with USB TTL Cable\r\n");
 
     ssd1306_Init();
+
+    // Update_MYRINFO();
+    // ssd1306_UpdateScreen();
     
     while(1)
     {
-
 
  
     //   if(uart1_data=='a'){
