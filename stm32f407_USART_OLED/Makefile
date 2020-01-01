@@ -76,6 +76,7 @@ OBJS=	./system_stm32f4xx.o \
         $/ssd1306/ssd1306_fonts.o \
         $/ssd1306/ssd1306_tests.o \
         ./main.o \
+        ./OLED_Print.o \
         $(STARTUP) 
         
 #Make all

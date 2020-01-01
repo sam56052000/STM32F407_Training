@@ -5,6 +5,7 @@
 
 #include "stm32f4xx.h"
 #include "./ssd1306/ssd1306.h"
+#include "OLED_Print.h"
 
 #define IOE_I2C I2C1
 

@@ -93,9 +93,9 @@ void ssd1306_Init(void) {
     ssd1306_WriteCommand(0x8D); //--set DC-DC enable
     ssd1306_WriteCommand(0x14); //
 
-    ssd1306_WriteCommand(0xA1); //--set segment re-map 0 to 127 - CHECK
+    ssd1306_WriteCommand(0xA0); //--set segment re-map 0 to 127 - CHECK
 
-    ssd1306_WriteCommand(0xC8); //Set COM Output Scan Direction
+    ssd1306_WriteCommand(0xC0); //Set COM Output Scan Direction
 
     ssd1306_WriteCommand(0xDA); //--set com pins hardware configuration - CHECK
     ssd1306_WriteCommand(0x12);
@@ -126,7 +126,7 @@ void ssd1306_Init(void) {
 //     ssd1306_WriteCommand(0x10); //---set high column address
 
     // Clear screen
-    ssd1306_Fill(White);
+    ssd1306_Fill(Black);
     
     // // Flush buffer to screen
     ssd1306_UpdateScreen();

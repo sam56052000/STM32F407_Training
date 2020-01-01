@@ -226,78 +226,6 @@ uint8_t PushButton_Read(void){
 }
 
 extern uint8_t SSD1306_Buffer[];
-// uint8_t MYRINFO[4][8] = {   
-//                         {0xDF,0xDF,0xDD,0xDD,0xDD,0x1D,0xDD,0xDD},
-//                         {0xDD,0x1D,0xDD,0xDD,0xDD,0xDF,0xDF,0xFF},
-//                         {0x7F,0xBF,0xDF,0xEF,0xF3,0xFC,0xFF,0xFF},
-//                         {0xFF,0xC0,0xBF,0xBF,0xBF,0xBF,0x87,0xFF}
-//                     };
-
-// uint8_t MYRINFO[] = {   0x00, 0x00, 0x00, 0x00, 0x00,   //
-//                         0xFF, 0x60, 0x18, 0x60, 0xFF,   // M
-//                         0x00, 0x00, 0x00, 0x00, 0x00,   //
-//                         0x80, 0x60, 0x1F, 0x60, 0x80,   // Y
-//                         0x00, 0x00, 0x00, 0x00, 0x00,   //
-//                         0x91, 0x82, 0x94, 0x98, 0xFF,   // R
-//                         0x00, 0x00, 0x00, 0x00, 0x00,   //
-//                         0x82, 0x82, 0xFF, 0x82, 0x82,   // I
-//                         0x00, 0x00, 0x00, 0x00, 0x00,   //
-//                         0xFF, 0x06, 0x18, 0x60, 0xFF,   // N
-//                         0x00, 0x00, 0x00, 0x00, 0x00,   //
-//                         0x90, 0x88, 0x88, 0x88, 0xFF,   // F
-//                         0x00, 0x00, 0x00, 0x00, 0x00,   //
-//                         0xFF, 0x81, 0x81, 0x81, 0xFF,   // O
-//                         0x00, 0x00, 0x00, 0x00, 0x00,   //
-//                         0x00, 0x00, 0x00, 0x00, 0x00,   //
-//                     };     
-
-uint8_t MYRINFO[][16] = {
-    {0x00, 0x00, 0x1F, 0xF8, 0x1F, 0xF8, 0x1E, 0x00, 0x07, 0x80, 0x01, 0xF0, 0x00, 0x38, 0x01, 0xF0},
-    {0x07, 0x80, 0x1E, 0x00, 0x1F, 0xF8, 0x1F, 0xF8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-
-    {0x00, 0x00, 0x18, 0x00, 0x1C, 0x00, 0x07, 0x00, 0x03, 0xF8, 0x03, 0xF8, 0x07, 0x00, 0x1C, 0x00},
-    {0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
-};               
-
-void Update_MYRINFO(void)
-{
-    uint8_t i = 0;
-    
-    for(i = 0; i < 8; i++)
-    {
-        SSD1306_Buffer[i+8] = MYRINFO[2][i];
-    }
-
-    for(i = 0; i < 8; i++)
-    {
-        SSD1306_Buffer[i+16] = MYRINFO[2][i+8];
-    }
-
-    for(i = 0; i < 8; i++)
-    {
-        SSD1306_Buffer[i+128+8] = MYRINFO[3][i];
-    }
-
-    for(i = 0; i < 8; i++)
-    {
-        SSD1306_Buffer[i+128+16] = MYRINFO[3][i+8];
-    }
-
-    // for(i = 0; i < 8; i++)
-    // {
-    //     SSD1306_Buffer[8+i] = MYRINFO[1][i];
-    // }
-
-    // for(i = 0; i < 8; i++)
-    // {
-    //     SSD1306_Buffer[128+i] = MYRINFO[2][i];
-    // }
-
-    // for(i = 0; i < 8; i++)
-    // {
-    //     SSD1306_Buffer[128+8+i] = MYRINFO[3][i];
-    // }
-}
 
 /**************************************************************************************/
 int main(void)
@@ -314,29 +242,51 @@ int main(void)
 
     ssd1306_Init();
 
-    // Update_MYRINFO();
-    // ssd1306_UpdateScreen();
-    
+    Print_ASCII(16, 0, 'W');
+    Print_ASCII(30, 0, 'E');
+    Print_ASCII(44, 0, 'L');
+    Print_ASCII(58, 0, 'C');
+    Print_ASCII(72, 0, 'O');
+    Print_ASCII(86, 0, 'M');
+    Print_ASCII(100, 0, 'E');
+
+    ssd1306_UpdateScreen();
+
+    Delay_1us(2000000);
+
+    ssd1306_Fill(Black);
+
     while(1)
     {
+        LED3_On();
+        Delay_1us(2000000);
 
- 
-    //   if(uart1_data=='a'){
-      LED3_On();
-      Delay_1us(1000000);
-      LED3_Off();
-      Delay_1us(1000000);
-    // }
-    //   if(uart1_data=='b'){
-    //   LED5_On();
-    // Delay_1us(1000000);
-    //  LED5_Off();
-    //  Delay_1us(1000000);
-    // }
+        ssd1306_Fill(Black);
+        Print_shang(0, 0);
+        Print_ban(24,0);
+        Print_sia(48,0);
+        Print_ban(72,0);
+        ssd1306_UpdateScreen();
 
+
+        LED3_Off();
+        Delay_1us(2000000);
+
+        ssd1306_Fill(Black);
+        Print_shang(0, 0);
+        Print_ke(24,0);
+        Print_sia(48,0);
+        Print_ke(72,0);
+        ssd1306_UpdateScreen();
+
+        LED3_Off();
+        Delay_1us(2000000);
+
+        ssd1306_Fill(Black);
+        Print_jhan(0,0);
+        Print_hao(24,0);
+        ssd1306_UpdateScreen();
     }
-
-
 }
 
 void USART3_IRQHandler(void)
